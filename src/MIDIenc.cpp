@@ -48,27 +48,25 @@ MIDIenc::~MIDIenc(){
   delete myKnob;
 };
 
-
 int MIDIenc::read(){
-  int newValue = -1;
-  int incdec = myKnob->read();
-  if(incdec >= detentOrValue && value < outHi){
-    newValue = value + 1;
+  int newValue;
+  newValue = myKnob->read();
+  newValue = newValue / detentOrValue;
+  if(newValue >= outLo && newValue <= outHi){
+    return newValue;
   }
-  else if (incdec <= -detentOrValue && value > outLo){
-    newValue = value - 1;
-  }
-  else{newValue = -1;}
-  myKnob->write(0);
-  return newValue;
-};
+  else {
+    myKnob->write(value * detentOrValue); // Write original value to knob, to prevent running over outHi
+    return value;  // return original value, since no changes
+    }
+}
 
 int MIDIenc::send(){
   int newValue = read();
-  if (newValue >= 0){
-    usbMIDI.sendControlChange(number, newValue, MIDIchannel);
-    value = newValue;
-  }
+    if (newValue != value) {
+      usbMIDI.sendControlChange(number, newValue, MIDIchannel);
+      value = newValue;
+    }
   return newValue;
 }
 
