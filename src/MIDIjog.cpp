@@ -40,10 +40,13 @@ int MIDIjog::send(){
       if (newValue != value) {
           if (newValue > 0) {
             usbMIDI.sendControlChange(numberRight, outHi, MIDIchannel);
+            value = newValue;
             myKnob->write(0);
+            
           }
           else if (newValue < 0 ) {
             usbMIDI.sendControlChange(numberLeft, outHi, MIDIchannel);
+            value = newValue;
             myKnob->write(0);
          }
       }
