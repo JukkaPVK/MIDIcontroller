@@ -37,16 +37,14 @@ int MIDIjog::read(){
 
 int MIDIjog::send(){
   int newValue = read();
-      if (newValue != value) {
+      if (newValue != 0) {
           if (newValue > 0) {
             usbMIDI.sendControlChange(numberRight, outHi, MIDIchannel);
-            value = newValue;
             myKnob->write(0);
             
           }
           else if (newValue < 0 ) {
             usbMIDI.sendControlChange(numberLeft, outHi, MIDIchannel);
-            value = newValue;
             myKnob->write(0);
          }
       }
