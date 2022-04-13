@@ -5,6 +5,8 @@
 #include "MIDIbutton.h"
 #include "MIDIpot.h"
 #include "MIDIenc.h"
+#include "MIDIjog.h"
+#include "MIDIjogRel.h"
 #include "MIDItouch.h"
 #include "MIDIdrum.h"
 

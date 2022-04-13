@@ -11,6 +11,16 @@ MIDIbutton::MIDIbutton(int p, byte num, byte mode) : Bounce(p, 10), TouchSwitch(
   state = false;
 };
 
+MIDIbutton::MIDIbutton(int p, byte num, byte numS, byte mode) : Bounce(p, 10), TouchSwitch(0, 0){
+  pinMode(p, INPUT_PULLUP);
+  inputType = 0; //button
+  number = num;
+  numberS = numS;
+  this->mode = mode; 
+  state = false;
+};
+
+/*
 MIDIbutton::MIDIbutton(int p, byte num, byte mode, int type) : Bounce(0, 0), TouchSwitch(p, 0, type){
   if (type == 0){
     inputType = 0;
@@ -31,6 +41,7 @@ MIDIbutton::MIDIbutton(int p, byte num, byte mode, int type) : Bounce(0, 0), Tou
   this->mode = mode;
   state = false;
 };
+*/
 
 // destructor
 MIDIbutton::~MIDIbutton(){};
@@ -73,20 +84,37 @@ int MIDIbutton::read(){
 /* This function will send the appropriate Control Change messages for the press
 and/or release of any MIDI button whether it's set to 'MOMENTARY' 'LATCH' or
 'TRIGGER' mode.*/
-int MIDIbutton::send(){
+int MIDIbutton::send(int shiftState){
   int newValue = read();
   if (newValue == outHi){       // If the button's been pressed,
     if (state == false){        // and if it was latched OFF,
-      usbMIDI.sendControlChange(number,outHi,MIDIchannel); // send CC outHi,
+      if (shiftState == 1) {
+        usbMIDI.sendControlChange(numberS,outHi,MIDIchannel); // send CC outHi,
+      }
+      else {
+        usbMIDI.sendControlChange(number,outHi,MIDIchannel); // send CC outHi,
+      }
       newValue = number;
       state = true;             // Remember the button is now on.
     }
     else{                       // If the button was latched ON,
       if (mode == 2){           // and the button's in TRIGGER mode(2),
-        usbMIDI.sendControlChange(number,outHi,MIDIchannel); // send CC outHi again 
+        if (shiftState == 1) {
+          usbMIDI.sendControlChange(numberS,outHi,MIDIchannel); // send CC outHi again
+        }
+        else {
+          usbMIDI.sendControlChange(number,outHi,MIDIchannel); // send CC outHi again
+        }
         newValue = number;
       }
-      else {usbMIDI.sendControlChange(number,outLo,MIDIchannel);}// else send outLo,
+      else {
+        if (shiftState == 1) {
+          usbMIDI.sendControlChange(numberS,outLo,MIDIchannel);
+        }
+        else {
+          usbMIDI.sendControlChange(number,outLo,MIDIchannel);
+        }
+      }// else send outLo,
       state = false;            // Remember the button is now off.
       newValue = outLo;
     }

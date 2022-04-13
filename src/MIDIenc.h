@@ -20,18 +20,22 @@ class MIDIenc{
     // " pins, control number and whether value changes PER_DETENT or PER_VALUE
     MIDIenc(int a, int b, byte num, byte detentOrValue);
 
+    // " pins, control number and whether value changes PER_DETENT or PER_VALUE
+    MIDIenc(int a, int b, byte num, byte numS, byte detentOrValue);
+
     // " pins, control number, minimum and maximum outgoing MIDI values set
-    MIDIenc(int a, int b, byte num, byte min, byte max);
+    MIDIenc(int a, int b, byte num, byte min, byte max, byte detentOrValue);
     
     // " pins, control number, min, max and PER_VALUE/PER_DETENT
-    MIDIenc(int a, int b, byte num, byte min, byte max, byte detentOrValue);
+    MIDIenc(int a, int b, byte num, byte numS ,byte min, byte max, byte detentOrValue);
 
     // destructor
     ~MIDIenc();
 
     int read(); // read input and return a MIDI value (or -1 if none)
-    int send(); // calls read(), sends and returns a MIDI value (or -1 if none)
+    int send(int shiftState = 0); // calls read(), sends and returns a MIDI value (or -1 if none)
     byte number;
+    byte numberS;
     byte value;
     byte outLo, outHi;
     byte detentOrValue;

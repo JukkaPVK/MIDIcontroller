@@ -13,21 +13,26 @@ class MIDIjog{
   public:
     // default constructor
     MIDIjog();
-    
-    // constructor when only pins and control numbers (left/right turn) are given
-    MIDIjog(int a, int b, byte numLeft, byte numRight);
-    
+
     // " pins, control numbers (left/right turn) and whether value changes PER_DETENT or PER_VALUE
     MIDIjog(int a, int b, byte numLeft, byte numRight, byte detentOrValue);
+
+    // " pins, control numbers (left/right turn and left/right turn with shift on) are given
+    MIDIjog(int a, int b, byte numLeft, byte numRight,  byte numLeftS, byte numRightS);
+
+    // " pins, control numbers (left/right turn and left/right turn with shift on) and whether value changes PER_DETENT or PER_VALUE
+    MIDIjog(int a, int b, byte numLeft, byte numRight,  byte numLeftS, byte numRightS, byte detentOrValue);
   
    
     // destructor
     ~MIDIjog();
 
     int read(); // read input and return a MIDI value (or 0 if none)
-    int send(); // calls read(), sends and returns a MIDI value (or 0 if none)
+    int send(int shiftState = 0); // calls read(), sends and returns a MIDI value (or 0 if none)
     byte numberLeft;
     byte numberRight;
+    byte numberLeftS;
+    byte numberRightS;
     byte value;
     byte outLo, outHi;
     byte detentOrValue;

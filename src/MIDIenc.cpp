@@ -1,7 +1,3 @@
-/*FIXME: after the value bottoms out alternating MIDI messages (0 1 0 1 0...)
-  will occasionally continue to be sent.
-*/
-
 #include "MIDIenc.h"
 
 // constructors
@@ -25,13 +21,14 @@ MIDIenc::MIDIenc(int a, int b, byte num, byte detentOrValue){
   outHi = 127;
 };
 
-MIDIenc::MIDIenc(int a, int b, byte num, byte min, byte max){
+MIDIenc::MIDIenc(int a, int b, byte num, byte numS, byte detentOrValue){
   myKnob = new Encoder(a, b);
 	number = num;
-  detentOrValue = 1; // CC changes once per encoder value
+  numberS = numS;
+  this->detentOrValue = detentOrValue; // CC changes per encoder value or detent
   value = 0;
-  outLo = min;
-  outHi = max;
+  outLo = 0;
+  outHi = 127;
 };
 
 MIDIenc::MIDIenc(int a, int b, byte num, byte min, byte max, byte detentOrValue){
@@ -43,30 +40,48 @@ MIDIenc::MIDIenc(int a, int b, byte num, byte min, byte max, byte detentOrValue)
   outHi = max;
 };
 
+MIDIenc::MIDIenc(int a, int b, byte num, byte numS, byte min, byte max, byte detentOrValue){
+  myKnob = new Encoder(a, b);
+	number = num;
+  numberS = numS;
+  this->detentOrValue = detentOrValue; // CC changes per encoder value or detent
+  value = 0;
+  outLo = min;
+  outHi = max;
+};
+
 // destructor
 MIDIenc::~MIDIenc(){
   delete myKnob;
 };
 
-int MIDIenc::read(){
-  int newValue;
-  newValue = myKnob->read();
-  newValue = newValue / detentOrValue;
-  if(newValue >= outLo && newValue <= outHi){
-    return newValue;
-  }
-  else {
-    myKnob->write(value * detentOrValue); // Write original value to knob, to prevent running over outHi
-    return value;  // return original value, since no changes
-    }
-}
 
-int MIDIenc::send(){
+int MIDIenc::read(){
+  int newValue = -1;
+  int incdec = myKnob->read();
+  if(incdec >= detentOrValue && value < outHi){
+    newValue = value + 1;
+    myKnob->write(0);
+  }
+  else if (incdec <= -detentOrValue && value > outLo){
+    newValue = value - 1;
+    myKnob->write(0);
+  }
+  else{newValue = -1;}
+  return newValue;
+};
+
+int MIDIenc::send(int shiftState){
   int newValue = read();
-    if (newValue != value) {
-      usbMIDI.sendControlChange(number, newValue, MIDIchannel);
-      value = newValue;
+  if (newValue >= 0){
+    if (shiftState == 1) {
+      usbMIDI.sendControlChange(numberS, newValue, MIDIchannel);
     }
+    else {
+      usbMIDI.sendControlChange(number, newValue, MIDIchannel);
+    }
+    value = newValue;
+  }
   return newValue;
 }
 

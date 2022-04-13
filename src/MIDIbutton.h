@@ -22,8 +22,10 @@ class MIDIbutton: public Bounce, public TouchSwitch{
     // constructor for a button
     MIDIbutton(int p, byte num, byte mode);
 
+    MIDIbutton(int p, byte num, byte numS, byte mode);
+
     // constructor for a capacitive sensor
-    MIDIbutton(int p, byte num, byte mode, int type);
+    //MIDIbutton(int p, byte num, byte mode, int type);
 
     // destructor
     ~MIDIbutton();
@@ -34,8 +36,9 @@ class MIDIbutton: public Bounce, public TouchSwitch{
     void setThreshold();
 
     int read(); // returns outHi for fallingEdge, outLo for risingEdge, else -1
-    int send(); // calls read(), sends a MIDI value & returns the control number
+    int send(int shiftState = 0); // calls read(), sends a MIDI value & returns the control number
     byte number = 0;     // redefined on instatiation
+    byte numberS = 0;
     byte outLo = 0;
     byte outHi = 127;
     byte mode = 0;       // momentary by default
